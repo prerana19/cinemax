@@ -1,4 +1,4 @@
-package com.inshorts.cinemax.ui.notifications;
+package com.inshorts.cinemax.ui.saved;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,22 +10,22 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.inshorts.cinemax.databinding.FragmentNotificationsBinding;
+import com.inshorts.cinemax.databinding.FragmentSavedBinding;
 
-public class NotificationsFragment extends Fragment {
+public class SavedFragment extends Fragment {
 
-    private FragmentNotificationsBinding binding;
+    private FragmentSavedBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        NotificationsViewModel notificationsViewModel =
-                new ViewModelProvider(this).get(NotificationsViewModel.class);
+        SavedViewModel savedViewModel =
+                new ViewModelProvider(this).get(SavedViewModel.class);
 
-        binding = FragmentNotificationsBinding.inflate(inflater, container, false);
+        binding = FragmentSavedBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textNotifications;
-        notificationsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final TextView textView = binding.textSaved;
+        savedViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 
