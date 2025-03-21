@@ -47,9 +47,23 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    //Retrofit
     implementation(libs.retrofit)
+    implementation(libs.retrofit.adapter.rxjava3)
     implementation(libs.converter.gson) // For JSON serialization
 
+    //OkHttp
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+
+    // Room
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+
+    // Room RxJava Support
+    implementation(libs.room.rxjava3)
+
+    // RxJava
+    implementation(libs.rxjava)
+    implementation(libs.rxandroid)
 }

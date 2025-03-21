@@ -1,23 +1,66 @@
 package com.inshorts.cinemax.model;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.ColumnInfo;
 import java.util.List;
 
+@Entity(tableName = "movies")
 public class Movie {
+    @ColumnInfo(name = "backdrop_path")
     private String backdropPath;
+
+    @PrimaryKey
     private int id;
+
+    @ColumnInfo(name = "title")
     private String title;
+
+    @ColumnInfo(name = "original_title")
     private String originalTitle;
+
+    @ColumnInfo(name = "overview")
     private String overview;
+
+    @ColumnInfo(name = "poster_path")
     private String posterPath;
+
+    @ColumnInfo(name = "media_type")
     private String mediaType;
+
+    @ColumnInfo(name = "adult")
     private boolean adult;
+
+    @ColumnInfo(name = "original_language")
     private String originalLanguage;
+
+    @ColumnInfo(name = "genre_ids")
     private List<Integer> genreIds;
+
+    @ColumnInfo(name = "popularity")
     private double popularity;
+
+    @ColumnInfo(name = "release_date")
     private String releaseDate;
+
+    @ColumnInfo(name = "video")
     private boolean video;
+
+    @ColumnInfo(name = "vote_average")
     private double voteAverage;
+
+    @ColumnInfo(name = "vote_count")
     private int voteCount;
+
+    //custom field for storing category of movie
+    @ColumnInfo(name = "trending", defaultValue = "0")
+    private boolean  trending;
+
+    @ColumnInfo(name = "now_playing", defaultValue = "0")
+    private boolean  nowPlaying;
+
+    @ColumnInfo(name = "bookmarked", defaultValue = "0")
+    private boolean  bookmarked;
 
     // Getters and Setters
     public String getBackdropPath() {
@@ -138,5 +181,29 @@ public class Movie {
 
     public void setVoteCount(int voteCount) {
         this.voteCount = voteCount;
+    }
+
+    public boolean isTrending() {
+        return trending;
+    }
+
+    public void setTrending(boolean trending) {
+        this.trending = trending;
+    }
+
+    public boolean isNowPlaying() {
+        return nowPlaying;
+    }
+
+    public void setNowPlaying(boolean nowPlaying) {
+        this.nowPlaying = nowPlaying;
+    }
+
+    public boolean isBookmarked() {
+        return bookmarked;
+    }
+
+    public void setBookmarked(boolean bookmarked) {
+        this.bookmarked = bookmarked;
     }
 }
