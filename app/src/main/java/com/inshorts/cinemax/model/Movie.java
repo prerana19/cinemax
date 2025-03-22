@@ -3,64 +3,81 @@ package com.inshorts.cinemax.model;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.ColumnInfo;
+
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 @Entity(tableName = "movies")
 public class Movie {
+    @SerializedName("backdrop_path")
     @ColumnInfo(name = "backdrop_path")
     private String backdropPath;
 
     @PrimaryKey
     private int id;
 
+    @SerializedName("title")
     @ColumnInfo(name = "title")
     private String title;
 
+    @SerializedName("original_title")
     @ColumnInfo(name = "original_title")
     private String originalTitle;
 
+    @SerializedName("overview")
     @ColumnInfo(name = "overview")
     private String overview;
 
+    @SerializedName("poster_path")
     @ColumnInfo(name = "poster_path")
     private String posterPath;
 
+    @SerializedName("media_type")
     @ColumnInfo(name = "media_type")
     private String mediaType;
 
+    @SerializedName("adult")
     @ColumnInfo(name = "adult")
     private boolean adult;
 
+    @SerializedName("original_language")
     @ColumnInfo(name = "original_language")
     private String originalLanguage;
 
+    @SerializedName("genre_ids")
     @ColumnInfo(name = "genre_ids")
     private List<Integer> genreIds;
 
+    @SerializedName("popularity")
     @ColumnInfo(name = "popularity")
     private double popularity;
 
+    @SerializedName("release_date")
     @ColumnInfo(name = "release_date")
     private String releaseDate;
 
+    @SerializedName("video")
     @ColumnInfo(name = "video")
     private boolean video;
 
+    @SerializedName("vote_average")
     @ColumnInfo(name = "vote_average")
     private double voteAverage;
 
+    @SerializedName("vote_count")
     @ColumnInfo(name = "vote_count")
     private int voteCount;
 
-    //custom field for storing category of movie
+    // Custom fields (not part of API response)
     @ColumnInfo(name = "trending", defaultValue = "0")
-    private boolean  trending;
+    private boolean trending;
 
     @ColumnInfo(name = "now_playing", defaultValue = "0")
-    private boolean  nowPlaying;
+    private boolean nowPlaying;
 
     @ColumnInfo(name = "bookmarked", defaultValue = "0")
-    private boolean  bookmarked;
+    private boolean bookmarked;
 
     // Getters and Setters
     public String getBackdropPath() {
@@ -205,5 +222,30 @@ public class Movie {
 
     public void setBookmarked(boolean bookmarked) {
         this.bookmarked = bookmarked;
+    }
+
+    // Override toString method
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "backdropPath='" + backdropPath + '\'' +
+                ", id=" + id +
+                ", title='" + title + '\'' +
+                ", originalTitle='" + originalTitle + '\'' +
+                ", overview='" + overview + '\'' +
+                ", posterPath='" + posterPath + '\'' +
+                ", mediaType='" + mediaType + '\'' +
+                ", adult=" + adult +
+                ", originalLanguage='" + originalLanguage + '\'' +
+                ", genreIds=" + genreIds +
+                ", popularity=" + popularity +
+                ", releaseDate='" + releaseDate + '\'' +
+                ", video=" + video +
+                ", voteAverage=" + voteAverage +
+                ", voteCount=" + voteCount +
+                ", trending=" + trending +
+                ", nowPlaying=" + nowPlaying +
+                ", bookmarked=" + bookmarked +
+                '}';
     }
 }

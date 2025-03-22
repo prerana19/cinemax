@@ -1,5 +1,6 @@
 package com.inshorts.cinemax.service;
 
+import com.inshorts.cinemax.model.Configuration;
 import com.inshorts.cinemax.model.Movies;
 
 import io.reactivex.rxjava3.core.Single;
@@ -14,4 +15,9 @@ public interface MoviesService {
 
     @GET("search/movie")
     Single<Movies> searchMovies(String query);
+
+    @GET("configuration")
+    Single<Configuration> getConfiguration();
+
+
 }

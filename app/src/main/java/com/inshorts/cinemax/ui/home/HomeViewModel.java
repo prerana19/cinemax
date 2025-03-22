@@ -1,13 +1,14 @@
 package com.inshorts.cinemax.ui.home;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.inshorts.cinemax.model.Movie;
 import com.inshorts.cinemax.repository.MoviesRepository;
 
 import java.util.List;
+
+import io.reactivex.rxjava3.core.Single;
 
 public class HomeViewModel extends ViewModel {
 
@@ -33,13 +34,35 @@ public class HomeViewModel extends ViewModel {
         return nowPlayingMovies;
     }
 
+    public void fetchPosters() {
+        moviesRepository.fetchPostersFromApi();
+    }
+
     public void fetchTrendingMoviesFromApi() {
         moviesRepository.fetchTrendingMoviesfromApi()
-                .subscribe(() -> System.out.println("API call successful"),
+                .subscribe(() ->{
+                            System.out.println("Trending API call successful");
+                            fetchPostersFromApi();
+                        },
                         throwable -> System.out.println("API error: " + throwable.getMessage()));
     }
 
     public void fetchNowPlayingMoviesFromApi() {
-        moviesRepository.fetchNowPlayingMoviesfromApi();
+        moviesRepository.fetchNowPlayingMoviesfromApi()
+                .subscribe(() -> {
+                            System.out.println("Now Playing API call successful");
+                            fetchPostersFromApi();
+                        },
+                        throwable -> System.out.println("API error: " + throwable.getMessage()));
+    }
+
+    public void fetchPostersFromApi() {
+        moviesRepository.fetchPostersFromApi()
+                .subscribe(() -> System.out.println("Posters API call successful"),
+                        throwable -> System.out.println("API error: " + throwable.getMessage()));
+    }
+
+    public Single<String> getMoviePoster(Movie movie) {
+        return moviesRepository.getMoviePoster(movie);
     }
 }

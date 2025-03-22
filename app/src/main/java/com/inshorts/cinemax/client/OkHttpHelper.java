@@ -6,6 +6,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class OkHttpHelper {
     public static OkHttpClient getClient() {
@@ -27,6 +28,9 @@ public class OkHttpHelper {
         };
 
         return new OkHttpClient.Builder()
+                .connectTimeout(20, TimeUnit.SECONDS) // Increase connection timeout
+                .readTimeout(30, TimeUnit.SECONDS)   // Increase read timeout
+                .writeTimeout(30, TimeUnit.SECONDS)  // Increase write timeout
                 .addInterceptor(headerInterceptor)  // Add custom headers
                 .addInterceptor(loggingInterceptor)  // Add logging
                 .retryOnConnectionFailure(true)  // Retry failed requests

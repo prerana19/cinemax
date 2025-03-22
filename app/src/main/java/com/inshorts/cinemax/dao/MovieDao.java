@@ -12,6 +12,7 @@ import com.inshorts.cinemax.model.Movie;
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Flowable;
 
 @Dao
 public interface MovieDao {
@@ -32,6 +33,9 @@ public interface MovieDao {
     // Get movies that are now playing
     @Query("SELECT * FROM movies WHERE now_playing=1")
     LiveData<List<Movie>> getNowPlayingMovies();
+
+    @Query("SELECT * FROM movies WHERE now_playing=1 OR trending=1")
+    Flowable<List<Movie>> getTrendingAndNowPlayingMovies();
 
     // Get movies that are bookmarked
     @Query("SELECT * FROM movies WHERE bookmarked=1")

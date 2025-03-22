@@ -40,4 +40,15 @@ public class Movies {
     public void setTotalResults(int totalResults) {
         this.totalResults = totalResults;
     }
+
+    // toString
+    @Override
+    public String toString() {
+        return "Movies{" +
+                "page=" + page +
+                ", movies=" + results.toString() +
+                ", totalPages=" + totalPages +
+                ", totalResults=" + totalResults +
+                '}';
+    }
 }
