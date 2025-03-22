@@ -14,6 +14,7 @@ navigationUi = "2.6.0"
 okhttp = "4.11.0"
 room = "2.6.1"
 rxjava3 = "3.0.2"
+recyclerview = "1.4.0"
 
 [libraries]
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
@@ -36,6 +37,7 @@ room-compiler = { group = "androidx.room", name = "room-compiler",  version.ref 
 room-rxjava3 = { group = "androidx.room", name = "room-rxjava3", version.ref = "room" }
 rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid",  version.ref = "rxjava3"  }
 rxjava = { group = "io.reactivex.rxjava3", name = "rxjava", version.ref = "rxjava3" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 
 [plugins]
