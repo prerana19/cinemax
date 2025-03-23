@@ -47,6 +47,8 @@ public class ImageUtil {
         if (!file.exists()) {
             return null; // Prevent errors if file doesn't exist
         }
-        return BitmapFactory.decodeFile(file.getAbsolutePath());
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;  // Prevent automatic scaling
+        return BitmapFactory.decodeFile(file.getAbsolutePath(),options);
     }
 }

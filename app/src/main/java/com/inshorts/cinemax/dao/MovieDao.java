@@ -62,8 +62,12 @@ public interface MovieDao {
 
 
     // Search movies by title or original title
-    @Query("SELECT * FROM movies WHERE title LIKE :query OR original_title LIKE :query")
-    LiveData<List<Movie>> searchMovies(String query);
+    @Query("SELECT * FROM movies " +
+            "WHERE LOWER(title) LIKE LOWER('%' || :query || '%')" +
+            " OR LOWER(original_title) LIKE LOWER('%' || :query || '%')" +
+            " ORDER BY vote_average DESC"
+    )
+    Flowable<List<Movie>> searchMovies(String query);
 
     // Insert trending movie and update trending flag
     @Transaction

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 
@@ -25,6 +26,7 @@ import com.inshorts.cinemax.util.NetworkUtils;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -186,7 +188,7 @@ public class MoviesRepository {
     }
 
     private Single<String> downloadPoster(Movie movie) {
-        String posterSize = this.posterSize.get(0);
+        String posterSize = this.posterSize.get(1);
         return imagesService.getImage(posterSize, movie.getPosterPath())
                 .flatMap(responseBody -> {
                     String path = savePosterToFile(responseBody, movie.getId());
@@ -269,13 +271,20 @@ public class MoviesRepository {
     }
 
     // Search movies using API
-    public Completable searchMoviesfromApi(String query) {
+    public Completable searchMoviesFromApi(String query) {
+        Log.d("Searching from API", "Searching for: " + query);
         return moviesService.searchMovies(query)
                 .subscribeOn(Schedulers.io()) // Run API call on background thread
                 .observeOn(Schedulers.io()) // Observe result on IO thread
-                .flatMapCompletable(movies -> Completable.fromAction(() -> {
-                    movieDao.insertMovies(movies.getMovies());
-                }));
+                .flatMapCompletable(movies -> Completable.fromAction(() -> movieDao.insertMovies(movies.getMovies())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                () -> {
+                                    Log.d("DB_INSERT", "Movies inserted successfully: " + movies.getMovies().size());
+                                }, // Success
+                                throwable -> Log.e("DB_INSERT", "Failed to insert movie", throwable) // Failure
+                        )));
     }
 
     // Fetch trending movies from the local database
@@ -294,7 +303,35 @@ public class MoviesRepository {
     }
 
     // Search movies from the local database
-    public LiveData<List<Movie>> searchMovies(String query) {
-        return movieDao.searchMovies(query);
+    /*public LiveData<List<Movie>> searchMovies(String query) {
+        // Get initial results from local DB
+        MediatorLiveData<List<Movie>> liveData = new MediatorLiveData<>();
+
+        // Observe local database changes
+        LiveData<List<Movie>> localResults = movieDao.searchMovies(query);
+        liveData.addSource(localResults, liveData::setValue);
+
+        // Fetch new data from API and update DB
+        searchMoviesFromApi(query)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()) // Ensure UI gets updates
+                .subscribe(() -> Log.d("Search", "API results inserted"));
+
+        return liveData; // Always return LiveData so UI updates automatically
+    }*/
+
+    public Observable<List<Movie>> searchMovies(String query) {
+        return movieDao.searchMovies(query)
+                .toObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(movies -> Log.d("Search", "Local DB results: " + movies.size()))
+                .flatMap(localMovies ->
+                        searchMoviesFromApi(query) // Force API execution before next DB query
+                                .subscribeOn(Schedulers.io())
+                                .andThen(movieDao.searchMovies(query).toObservable()) // Fetch updated DB results
+                )
+                .doOnNext(updatedMovies -> Log.d("Search", "Updated DB results: " + updatedMovies.size()))
+                .doOnError(error -> Log.e("SearchError", "Error in search: " + error.getMessage())); // Handle errors
     }
 }
