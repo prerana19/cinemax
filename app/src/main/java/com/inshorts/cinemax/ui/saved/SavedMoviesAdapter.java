@@ -1,4 +1,4 @@
-package com.inshorts.cinemax.ui.home.adapter;
+package com.inshorts.cinemax.ui.saved;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
 import com.inshorts.cinemax.ui.home.HomeViewModel;
+import com.inshorts.cinemax.ui.home.NowPlayingAdapter;
 import com.inshorts.cinemax.util.ImageUtil;
 
 import java.text.DecimalFormat;
@@ -26,36 +27,33 @@ import java.util.List;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.MovieViewHolder> {
+public class SavedMoviesAdapter extends RecyclerView.Adapter<SavedMoviesAdapter.MovieViewHolder> {
 
     private final Context context;
     private final List<Movie> movies;
-    private final HomeViewModel homeViewModel;
-
-    public NowPlayingAdapter(Context context, List<Movie> movies, HomeViewModel homeViewModel) {
+    private final SavedViewModel savedViewModel;
+    public SavedMoviesAdapter(Context context, List<Movie> movies, SavedViewModel savedViewModel) {
         this.context = context;
         this.movies = movies;
-        this.homeViewModel = homeViewModel;
+        this.savedViewModel = savedViewModel;
     }
 
     @NonNull
     @Override
-    public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SavedMoviesAdapter.MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.card_movie_detailed, parent, false);
-        return new MovieViewHolder(view);
+        return new SavedMoviesAdapter.MovieViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull SavedMoviesAdapter.MovieViewHolder holder, int position) {
         Movie movie = movies.get(position);
 
         holder.titleTextView.setText(movie.getTitle());
         String voteAverage = new DecimalFormat("#.0").format(movie.getVoteAverage());
         holder.averageVotesTextView.setText(voteAverage);
-        // change color of averageVotesTextView based on value
-        // if average vote is less than 5, set red color
-        // if average vote is greater than 7, set green color
 
+        // change color of averageVotesTextView based on value
         Drawable background = holder.averageVotesTextView.getBackground().mutate(); // Ensure independent drawable instance
 
         if (Double.valueOf(voteAverage) <= 5) {
@@ -69,7 +67,7 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
         holder.movieLanguageTextView.setText(movie.getOriginalLanguage());
 
         holder.bookmarkButton.setOnClickListener(v -> {
-            homeViewModel.toggleBookmark(movie);
+            savedViewModel.toggleBookmark(movie);
         });
 
         if (movie.isBookmarked()) {
@@ -77,21 +75,11 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
         } else {
             holder.bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmark)); // Set unbookmarked icon
         }
-/*
-        Drawable bookmarkBg = holder.bookmarkButton.getBackground().mutate(); // Ensure independent drawable instance
-
-        if(movie.isBookmarked()){
-            bookmarkBg.setTint(ContextCompat.getColor(context, R.color.bookmark));
-        }
-        else {
-            //set color to transparent
-            bookmarkBg.clearColorFilter();
-        }*/
 
         if(movie.isAdult()) holder.ratingTextView.setText("A");
 
         // Load image from local storage using ViewModel
-        homeViewModel.getMoviePoster(movie)
+        savedViewModel.getMoviePoster(movie)
                 .subscribeOn(Schedulers.io())  // Load on background thread
                 .observeOn(AndroidSchedulers.mainThread())  // Update UI on main thread
                 .subscribe(
@@ -113,15 +101,6 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
                 );
     }
 
-    private void updateBookmarkUI(ImageButton bookmarkButton, boolean bookmarked) {
-        if (bookmarked) {
-            bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmarked)); // Set bookmarked icon
-        } else {
-            bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmark)); // Set unbookmarked icon
-        }
-        bookmarkButton.requestLayout();
-    }
-
     @Override
     public int getItemCount() {
         return movies.size();
@@ -132,7 +111,7 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
         ImageView imageView;
 
         ImageButton bookmarkButton;
-        
+
         public MovieViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.movieTitle);
@@ -144,4 +123,6 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
             bookmarkButton = itemView.findViewById(R.id.bookmarkIcon);
         }
     }
+
+
 }

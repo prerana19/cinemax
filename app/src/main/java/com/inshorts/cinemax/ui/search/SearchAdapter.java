@@ -1,4 +1,4 @@
-package com.inshorts.cinemax.ui.search.adapter;
+package com.inshorts.cinemax.ui.search;
 
 import android.content.Context;
 import android.util.Log;
@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
-import com.inshorts.cinemax.ui.search.SearchViewModel;
 
 import java.util.List;
 

@@ -4,16 +4,35 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.inshorts.cinemax.model.Movie;
+import com.inshorts.cinemax.repository.MoviesRepository;
+
+import java.util.List;
+
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Single;
+
 public class SavedViewModel extends ViewModel {
 
-    private final MutableLiveData<String> mText;
+    private final MoviesRepository moviesRepository;
 
-    public SavedViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is saved fragment");
+    private final LiveData<List<Movie>> savedMovies;
+
+    public SavedViewModel(MoviesRepository moviesRepository) {
+        this.moviesRepository = moviesRepository;
+        this.savedMovies = moviesRepository.getBookmarkedMovies();
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public LiveData<List<Movie>> getSavedMovies() {
+        return savedMovies;
+    }
+
+
+    public Single<String> getMoviePoster(Movie movie) {
+        return moviesRepository.getMoviePoster(movie);
+    }
+
+    public void toggleBookmark(Movie movie) {
+        moviesRepository.toggleBookmark(movie);
     }
 }

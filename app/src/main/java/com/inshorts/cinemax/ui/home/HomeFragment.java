@@ -15,8 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.inshorts.cinemax.databinding.FragmentHomeBinding;
 import com.inshorts.cinemax.model.Movie;
 import com.inshorts.cinemax.repository.MoviesRepository;
-import com.inshorts.cinemax.ui.home.adapter.NowPlayingAdapter;
-import com.inshorts.cinemax.ui.home.adapter.TrendingMoviesAdapter;
 import com.inshorts.cinemax.util.NetworkUtils;
 
 import java.util.List;

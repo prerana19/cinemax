@@ -1,4 +1,4 @@
-package com.inshorts.cinemax.ui.home.adapter;
+package com.inshorts.cinemax.ui.home;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
-import com.inshorts.cinemax.ui.home.HomeViewModel;
 import com.inshorts.cinemax.util.ImageUtil;
 
 import java.util.List;

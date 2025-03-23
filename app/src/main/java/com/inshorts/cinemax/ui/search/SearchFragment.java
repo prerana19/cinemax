@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
 import com.inshorts.cinemax.repository.MoviesRepository;
-import com.inshorts.cinemax.ui.search.adapter.SearchAdapter;
 
 import java.util.List;
 
