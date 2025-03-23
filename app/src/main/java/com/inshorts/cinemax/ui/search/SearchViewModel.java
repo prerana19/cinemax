@@ -4,16 +4,25 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.inshorts.cinemax.model.Movie;
+import com.inshorts.cinemax.model.Movies;
+import com.inshorts.cinemax.repository.MoviesRepository;
+
+import java.util.List;
+
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+
 public class SearchViewModel extends ViewModel {
 
-    private final MutableLiveData<String> mText;
+    private final MoviesRepository moviesRepository;
 
-    public SearchViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is search fragment");
+    public SearchViewModel(MoviesRepository moviesRepository) {
+       this.moviesRepository = moviesRepository;
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public Observable<List<Movie>> getSearchResults(String query) {
+        return moviesRepository.searchMovies(query);
     }
+
 }
