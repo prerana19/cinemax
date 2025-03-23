@@ -65,4 +65,8 @@ public class HomeViewModel extends ViewModel {
     public Single<String> getMoviePoster(Movie movie) {
         return moviesRepository.getMoviePoster(movie);
     }
+
+    public void toggleBookmark(Movie movie) {
+        moviesRepository.toggleBookmark(movie);
+    }
 }

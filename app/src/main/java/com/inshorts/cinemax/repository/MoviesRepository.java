@@ -265,11 +265,6 @@ public class MoviesRepository {
                 );
     }
 
-    // Bookmark a movie
-    public void bookmarkMovie(int id) {
-        movieDao.bookMarkMovie(id);
-    }
-
     // Search movies using API
     public Completable searchMoviesFromApi(String query) {
         Log.d("Searching from API", "Searching for: " + query);
@@ -333,5 +328,16 @@ public class MoviesRepository {
                 )
                 .doOnNext(updatedMovies -> Log.d("Search", "Updated DB results: " + updatedMovies.size()))
                 .doOnError(error -> Log.e("SearchError", "Error in search: " + error.getMessage())); // Handle errors
+    }
+
+    public void toggleBookmark(Movie movie) {
+//        movie.setBookmarked(!movie.isBookmarked());
+        movieDao.toggleBookmark(movie.getId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        () -> Log.d("DB_UPDATE", "Movie bookmark toggled successfully: " + movie.toString()), // Success
+                        throwable -> Log.e("DB_UPDATE", "Failed to update movie", throwable) // Failure
+                );
     }
 }

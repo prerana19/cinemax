@@ -10,5 +10,7 @@
     <color name="gold">#FFD700</color>
     <color name="red">#830101</color>
     <color name="green">#004F00</color>
+    <color name="gray2">#AEAEAE</color>
     <color name="gray">#888888</color>
+    <color name="bookmark">#152E60FF</color>
 </resources>

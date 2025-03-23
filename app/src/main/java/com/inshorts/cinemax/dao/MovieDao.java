@@ -26,6 +26,9 @@ public interface MovieDao {
     @Query("SELECT * FROM movies")
     LiveData<List<Movie>> getAllMovies();
 
+    @Query("SELECT * FROM movies WHERE id = :id")
+    LiveData<Movie> getMovieById(int id);
+
     // Get movies that are trending
     @Query("SELECT * FROM movies WHERE trending=1")
     LiveData<List<Movie>> getTrendingMovies();
@@ -57,10 +60,6 @@ public interface MovieDao {
     @Query("UPDATE movies SET now_playing = 1 WHERE id = :id")
     Completable updateNowPlaying(int id);
 
-    @Query("UPDATE movies SET bookmarked = 1 WHERE id = :id")
-    Completable bookMarkMovie(int id);
-
-
     // Search movies by title or original title
     @Query("SELECT * FROM movies " +
             "WHERE LOWER(title) LIKE LOWER('%' || :query || '%')" +
@@ -83,4 +82,11 @@ public interface MovieDao {
          insertMovie(movie)
                 .andThen(updateNowPlaying(movie.getId()));
     }
+
+    @Query("UPDATE movies " +
+            "SET bookmarked = CASE " +
+            "WHEN bookmarked = 1 THEN 0 ELSE 1 " +
+            "END " +
+            "WHERE id = :movieId")
+    Completable toggleBookmark(int movieId);
 }

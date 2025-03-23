@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -49,22 +50,43 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
         Movie movie = movies.get(position);
 
         holder.titleTextView.setText(movie.getTitle());
-        holder.averageVotesTextView.setText(new DecimalFormat("#.0").format(movie.getVoteAverage()));
+        String voteAverage = new DecimalFormat("#.0").format(movie.getVoteAverage());
+        holder.averageVotesTextView.setText(voteAverage);
         // change color of averageVotesTextView based on value
         // if average vote is less than 5, set red color
         // if average vote is greater than 7, set green color
 
         Drawable background = holder.averageVotesTextView.getBackground().mutate(); // Ensure independent drawable instance
 
-        if (movie.getVoteAverage() <= 5) {
+        if (Double.valueOf(voteAverage) <= 5) {
             background.setTint(ContextCompat.getColor(context, R.color.red));
             holder.averageVotesTextView.setTextColor(ContextCompat.getColor(context, R.color.white));
-        } else if (movie.getVoteAverage() >= 7) {
+        } else if (Double.valueOf(voteAverage)  >= 7) {
             background.setTint(ContextCompat.getColor(context, R.color.green));
             holder.averageVotesTextView.setTextColor(ContextCompat.getColor(context, R.color.white));
         }
         holder.voteCountTextView.setText(String.valueOf(movie.getVoteCount()));
         holder.movieLanguageTextView.setText(movie.getOriginalLanguage());
+
+        holder.bookmarkButton.setOnClickListener(v -> {
+            homeViewModel.toggleBookmark(movie);
+        });
+
+        if (movie.isBookmarked()) {
+            holder.bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmarked)); // Set bookmarked icon
+        } else {
+            holder.bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmark)); // Set unbookmarked icon
+        }
+/*
+        Drawable bookmarkBg = holder.bookmarkButton.getBackground().mutate(); // Ensure independent drawable instance
+
+        if(movie.isBookmarked()){
+            bookmarkBg.setTint(ContextCompat.getColor(context, R.color.bookmark));
+        }
+        else {
+            //set color to transparent
+            bookmarkBg.clearColorFilter();
+        }*/
 
         if(movie.isAdult()) holder.ratingTextView.setText("A");
 
@@ -91,6 +113,15 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
                 );
     }
 
+    private void updateBookmarkUI(ImageButton bookmarkButton, boolean bookmarked) {
+        if (bookmarked) {
+            bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmarked)); // Set bookmarked icon
+        } else {
+            bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmark)); // Set unbookmarked icon
+        }
+        bookmarkButton.requestLayout();
+    }
+
     @Override
     public int getItemCount() {
         return movies.size();
@@ -99,6 +130,8 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView, ratingTextView, averageVotesTextView, voteCountTextView, movieLanguageTextView;
         ImageView imageView;
+
+        ImageButton bookmarkButton;
         
         public MovieViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -108,6 +141,7 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
             averageVotesTextView = itemView.findViewById(R.id.averageVotes);
             voteCountTextView = itemView.findViewById(R.id.voteCount);
             movieLanguageTextView = itemView.findViewById(R.id.movieLanguages);
+            bookmarkButton = itemView.findViewById(R.id.bookmarkIcon);
         }
     }
 }
