@@ -1,6 +1,7 @@
 package com.inshorts.cinemax.ui.saved;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,6 +38,26 @@ public class SavedFragment extends Fragment {
                 new ViewModelProvider(this,new SavedViewModelFactory(moviesRepository))
                         .get(SavedViewModel.class);
 
+        observeSavedMovies();
+        return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Check if MovieDialogFragment is open
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        Fragment dialogFragment = fragmentManager.findFragmentByTag("MovieDialog");
+
+        if (dialogFragment == null) {
+            observeSavedMovies();  // Observe only if the dialog is NOT open
+        } else {
+            Log.d("SavedFragment", "Dialog is open. Skipping LiveData updates.");
+        }
+    }
+
+    private void observeSavedMovies() {
         savedViewModel.getSavedMovies()
                 .observe(this.getViewLifecycleOwner(),movies -> {
                     {
@@ -44,7 +66,6 @@ public class SavedFragment extends Fragment {
                         }
                     }
                 });
-        return root;
     }
 
     @Override

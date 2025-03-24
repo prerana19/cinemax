@@ -69,6 +69,51 @@ public class Movie {
     @ColumnInfo(name = "vote_count")
     private int voteCount;
 
+    //Movie Details Fields
+    @SerializedName("runtime")
+    @ColumnInfo(name = "runtime")
+    private int runtime;
+
+    @SerializedName("status")
+    @ColumnInfo(name = "status")
+    private String status;
+
+    @SerializedName("tagline")
+    @ColumnInfo(name = "tagline")
+    private String tagline;
+
+    @SerializedName("budget")
+    @ColumnInfo(name = "budget")
+    private int budget;
+
+    @SerializedName("revenue")
+    @ColumnInfo(name = "revenue")
+    private int revenue;
+
+    @SerializedName("homepage")
+    @ColumnInfo(name = "homepage")
+    private String homepage;
+
+    @SerializedName("imdb_id")
+    @ColumnInfo(name = "imdb_id")
+    private String imdbId;
+
+    @SerializedName("production_companies")
+    @ColumnInfo(name = "production_companies")
+    private List<ProductionCompany> productionCompanies;
+
+    @SerializedName("production_countries")
+    @ColumnInfo(name = "production_countries")
+    private List<ProductionCountry> productionCountries;
+
+    @SerializedName("spoken_languages")
+    @ColumnInfo(name = "spoken_languages")
+    private List<SpokenLanguage> spokenLanguages;
+
+    @SerializedName("genres")
+    @ColumnInfo(name = "genres")
+    private List<Genre> genres;
+
     // Custom fields (not part of API response)
     @ColumnInfo(name = "trending", defaultValue = "0")
     private boolean trending;
@@ -224,6 +269,95 @@ public class Movie {
         this.bookmarked = bookmarked;
     }
 
+    public int getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(int runtime) {
+        this.runtime = runtime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getTagline() {
+        return tagline;
+    }
+
+    public void setTagline(String tagline) {
+        this.tagline = tagline;
+    }
+
+    public int getBudget() {
+        return budget;
+    }
+
+    public void setBudget(int budget) {
+        this.budget = budget;
+    }
+
+    public int getRevenue() {
+        return revenue;
+    }
+
+    public void setRevenue(int revenue) {
+        this.revenue = revenue;
+    }
+
+    public String getHomepage() {
+        return homepage;
+    }
+
+    public void setHomepage(String homepage) {
+        this.homepage = homepage;
+    }
+
+    public String getImdbId() {
+        return imdbId;
+    }
+
+    public void setImdbId(String imdbId) {
+        this.imdbId = imdbId;
+    }
+
+    public List<ProductionCompany> getProductionCompanies() {
+        return productionCompanies;
+    }
+
+    public void setProductionCompanies(List<ProductionCompany> productionCompanies) {
+        this.productionCompanies = productionCompanies;
+    }
+
+    public List<ProductionCountry> getProductionCountries() {
+        return productionCountries;
+    }
+
+    public void setProductionCountries(List<ProductionCountry> productionCountries) {
+        this.productionCountries = productionCountries;
+    }
+
+    public List<SpokenLanguage> getSpokenLanguages() {
+        return spokenLanguages;
+    }
+
+    public void setSpokenLanguages(List<SpokenLanguage> spokenLanguages) {
+        this.spokenLanguages = spokenLanguages;
+    }
+
+    public List<Genre> getGenres() {
+        return genres;
+    }
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
+    }
+
+
     // Override toString method
     @Override
     public String toString() {
@@ -246,6 +380,17 @@ public class Movie {
                 ", trending=" + trending +
                 ", nowPlaying=" + nowPlaying +
                 ", bookmarked=" + bookmarked +
+                ", runtime=" + runtime +
+                ", status='" + status + '\'' +
+                ", tagline='" + tagline + '\'' +
+                ", budget=" + budget +
+                ", revenue=" + revenue +
+                ", homepage='" + homepage + '\'' +
+                ", imdbId='" + imdbId + '\'' +
+                ", productionCompanies=" + productionCompanies +
+                ", productionCountries=" + productionCountries +
+                ", spokenLanguages=" + spokenLanguages +
+                ", genres=" + genres +
                 '}';
     }
 }

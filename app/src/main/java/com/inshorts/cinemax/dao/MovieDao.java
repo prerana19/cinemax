@@ -27,22 +27,22 @@ public interface MovieDao {
     LiveData<List<Movie>> getAllMovies();
 
     @Query("SELECT * FROM movies WHERE id = :id")
-    LiveData<Movie> getMovieById(int id);
+    Flowable<Movie> getMovieById(int id);
 
     // Get movies that are trending
     @Query("SELECT * FROM movies WHERE trending=1")
-    LiveData<List<Movie>> getTrendingMovies();
+    Flowable<List<Movie>> getTrendingMovies();
 
     // Get movies that are now playing
     @Query("SELECT * FROM movies WHERE now_playing=1")
-    LiveData<List<Movie>> getNowPlayingMovies();
+    Flowable<List<Movie>> getNowPlayingMovies();
 
     @Query("SELECT * FROM movies WHERE now_playing=1 OR trending=1")
     Flowable<List<Movie>> getTrendingAndNowPlayingMovies();
 
     // Get movies that are bookmarked
     @Query("SELECT * FROM movies WHERE bookmarked=1")
-    LiveData<List<Movie>> getBookmarkedMovies();
+    Flowable<List<Movie>> getBookmarkedMovies();
 
     // Set all movies as not trending
     @Query("UPDATE movies SET trending=0")
@@ -89,4 +89,7 @@ public interface MovieDao {
             "END " +
             "WHERE id = :movieId")
     Completable toggleBookmark(int movieId);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    Completable update(Movie existingMovie);
 }

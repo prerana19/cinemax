@@ -67,4 +67,8 @@ dependencies {
     // RxJava
     implementation(libs.rxjava)
     implementation(libs.rxandroid)
+
+    // RxJava3 support for LiveData
+    implementation(libs.reactivestreams)
+
 }

@@ -1,6 +1,7 @@
 package com.inshorts.cinemax.ui.saved;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.LiveDataReactiveStreams;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -20,7 +21,7 @@ public class SavedViewModel extends ViewModel {
 
     public SavedViewModel(MoviesRepository moviesRepository) {
         this.moviesRepository = moviesRepository;
-        this.savedMovies = moviesRepository.getBookmarkedMovies();
+        this.savedMovies = LiveDataReactiveStreams.fromPublisher(  moviesRepository.getBookmarkedMovies());
     }
 
     public LiveData<List<Movie>> getSavedMovies() {

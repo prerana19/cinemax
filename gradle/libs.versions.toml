@@ -38,7 +38,7 @@ room-rxjava3 = { group = "androidx.room", name = "room-rxjava3", version.ref = "
 rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid",  version.ref = "rxjava3"  }
 rxjava = { group = "io.reactivex.rxjava3", name = "rxjava", version.ref = "rxjava3" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
-
+reactivestreams = { group = "androidx.lifecycle", name = "lifecycle-reactivestreams", version = "lifecycleLivedataKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

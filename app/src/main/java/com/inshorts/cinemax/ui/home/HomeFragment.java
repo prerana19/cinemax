@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,10 +32,21 @@ public class HomeFragment extends Fragment {
 
     private CompositeDisposable disposables = new CompositeDisposable(); // Manages RxJava subscriptions
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putAll(outState);
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
+        super.onCreate(savedInstanceState);
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         trendingRecyclerView = binding.trendingRecyclerView;
@@ -49,41 +62,81 @@ public class HomeFragment extends Fragment {
                         .get(HomeViewModel.class);
 
 
-        // Fetch from API if network is available
+        /*// Fetch from API if network is available
         if (NetworkUtils.isNetworkAvailable(this.getContext())) {
             System.out.println("Network is available");
             homeViewModel.fetchTrendingMoviesFromApi();
             homeViewModel.fetchNowPlayingMoviesFromApi();
-        }
+        }*/
 
         // Observe LiveData for automatic UI updates
+        observeTrendingMovies();
+        observeNowPlayingMovies();
+
+        return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Check if MovieDialogFragment is open
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        Fragment dialogFragment = fragmentManager.findFragmentByTag("MovieDialog");
+
+        if (dialogFragment == null) {
+            observeTrendingMovies();
+            observeNowPlayingMovies();  // Observe only if the dialog is NOT open
+        } else {
+            Log.d("SavedFragment", "Dialog is open. Skipping LiveData updates.");
+        }
+    }
+    private void observeNowPlayingMovies() {
+        homeViewModel.getNowPlayingMovies().observe(this.getViewLifecycleOwner(),movies -> {
+            {
+                if (movies != null && !movies.isEmpty()) {
+                    System.out.println("Movies found in database! " + movies.size());
+                    System.out.println("First Movie Title: " + movies.get(0).getTitle());
+                    this.displayNowPlayingMovies(movies);
+                } else {
+                    System.out.println("No movies found in database!");
+                }
+
+            }
+        });
+    }
+
+    private void observeTrendingMovies() {
         homeViewModel.getTrendingMovies().observe(this.getViewLifecycleOwner(),movies -> {
             {
                 if (movies != null && !movies.isEmpty()) {
                     System.out.println("Movies found in database! " + movies.size());
                     System.out.println("First Movie Title: " + movies.get(0).getTitle());
-                    homeViewModel.fetchPostersFromApi();
+//                    homeViewModel.fetchPostersFromApi();
+                    this.displayTrendingMovies(movies);
                 } else {
                     System.out.println("No movies found in database!");
                 }
-                this.displayTrendingMovies(movies);
+
             }
 
         });
+    }
 
-        homeViewModel.getNowPlayingMovies().observe(this.getViewLifecycleOwner(),movies -> {
-            {
-                if (movies != null && !movies.isEmpty()) {
-                    System.out.println("No movies found in database! " + movies.size());
-                    System.out.println("First Movie Title: " + movies.get(0).getTitle());
-                } else {
-                    System.out.println("No movies found in database!");
-                }
-                this.displayNowPlayingMovies(movies);
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Fetch data only if LiveData is empty
+        if (homeViewModel.getTrendingMovies().getValue() == null ||
+                homeViewModel.getTrendingMovies().getValue().isEmpty()) {
+            if (NetworkUtils.isNetworkAvailable(getContext())) {
+                homeViewModel.fetchTrendingMoviesFromApi();
+                homeViewModel.fetchNowPlayingMoviesFromApi();
             }
-        });
-
-        return root;
+        }
     }
 
     private void displayTrendingMovies(List<Movie> movies) {

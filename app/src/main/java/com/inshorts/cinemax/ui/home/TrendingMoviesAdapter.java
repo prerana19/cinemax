@@ -18,6 +18,8 @@ import com.inshorts.cinemax.util.ImageUtil;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.SingleObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class TrendingMoviesAdapter extends RecyclerView.Adapter<TrendingMoviesAdapter.TrendingViewHolder> {
@@ -44,21 +46,50 @@ public class TrendingMoviesAdapter extends RecyclerView.Adapter<TrendingMoviesAd
         Movie movie = movies.get(position);
         holder.titleTextView.setText(movie.getTitle());
 
-        // Load image from local storage
+//    Load image from local storage
         homeViewModel.getMoviePoster(movie)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        path -> {
+                .subscribe(new SingleObserver<String>() {
+                    private Disposable disposable;
+
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                        disposable = d;
+                    }
+
+                    @Override
+                    public void onSuccess(@NonNull String path) {
+                        if (holder.getAdapterPosition() == position) { // Ensure it's the right ViewHolder
                             Bitmap bmp = ImageUtil.loadImageFromInternalStorage(path);
                             if (bmp != null) {
                                 holder.imageView.setImageBitmap(bmp);
                             } else {
                                 holder.imageView.setImageResource(R.drawable.movie_icon);
                             }
-                        },
-                        throwable -> holder.imageView.setImageResource(R.drawable.movie_icon)
-                );
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        holder.imageView.setImageResource(R.drawable.movie_icon);
+                    }
+                });
+        // Load image from local storage
+//        homeViewModel.getMoviePoster(movie)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(
+//                        path -> {
+//                            Bitmap bmp = ImageUtil.loadImageFromInternalStorage(path);
+//                            if (bmp != null) {
+//                                holder.imageView.setImageBitmap(bmp);
+//                            } else {
+//                                holder.imageView.setImageResource(R.drawable.movie_icon);
+//                            }
+//                        },
+//                        throwable -> holder.imageView.setImageResource(R.drawable.movie_icon)
+//                );
     }
 
     @Override

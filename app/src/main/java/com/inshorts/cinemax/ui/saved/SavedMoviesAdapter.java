@@ -3,6 +3,7 @@ package com.inshorts.cinemax.ui.saved;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +14,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
+import com.inshorts.cinemax.ui.dialog.MovieDialogFragment;
 import com.inshorts.cinemax.ui.home.HomeViewModel;
 import com.inshorts.cinemax.ui.home.NowPlayingAdapter;
 import com.inshorts.cinemax.util.ImageUtil;
@@ -25,6 +29,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class SavedMoviesAdapter extends RecyclerView.Adapter<SavedMoviesAdapter.MovieViewHolder> {
@@ -32,6 +37,8 @@ public class SavedMoviesAdapter extends RecyclerView.Adapter<SavedMoviesAdapter.
     private final Context context;
     private final List<Movie> movies;
     private final SavedViewModel savedViewModel;
+    MovieDialogFragment dialog;
+    Disposable liveDataSubscription;
     public SavedMoviesAdapter(Context context, List<Movie> movies, SavedViewModel savedViewModel) {
         this.context = context;
         this.movies = movies;
@@ -50,6 +57,38 @@ public class SavedMoviesAdapter extends RecyclerView.Adapter<SavedMoviesAdapter.
         Movie movie = movies.get(position);
 
         holder.titleTextView.setText(movie.getTitle());
+        holder.imageView.setImageResource(R.drawable.movie_icon);
+        holder.bookmarkButton.setOnClickListener(v -> {
+            savedViewModel.toggleBookmark(movie);
+        });
+
+        holder.bookmarkButton.setImageDrawable(
+                ContextCompat.getDrawable(context, movie.isBookmarked() ? R.drawable.ic_bookmarked : R.drawable.ic_bookmark)
+        );
+
+        if(movie.isAdult()) holder.ratingTextView.setText("A");
+
+        holder.itemView.setOnClickListener(v -> {
+            dialog = new MovieDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt("movieId", movie.getId());
+            dialog.setArguments(args);
+            FragmentManager fragmentManager = ((FragmentActivity) v.getContext()).getSupportFragmentManager();
+            dialog.show(fragmentManager, "MovieDialog");
+        });
+
+        // Stop previous subscription before starting a new one
+        if (holder.subscription != null && !holder.subscription.isDisposed()) {
+            holder.subscription.dispose();
+        }
+
+        if (dialog == null) {
+            liveDataSubscription = observeLiveData(movie,holder);  // Resume subscriptions only if dialog is NOT open
+        } else {
+            Log.d("HomeFragment", "Dialog is open. Skipping LiveData updates.");
+            liveDataSubscription.dispose();
+        }
+
         String voteAverage = new DecimalFormat("#.0").format(movie.getVoteAverage());
         holder.averageVotesTextView.setText(voteAverage);
 
@@ -66,20 +105,10 @@ public class SavedMoviesAdapter extends RecyclerView.Adapter<SavedMoviesAdapter.
         holder.voteCountTextView.setText(String.valueOf(movie.getVoteCount()));
         holder.movieLanguageTextView.setText(movie.getOriginalLanguage());
 
-        holder.bookmarkButton.setOnClickListener(v -> {
-            savedViewModel.toggleBookmark(movie);
-        });
+    }
 
-        if (movie.isBookmarked()) {
-            holder.bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmarked)); // Set bookmarked icon
-        } else {
-            holder.bookmarkButton.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_bookmark)); // Set unbookmarked icon
-        }
-
-        if(movie.isAdult()) holder.ratingTextView.setText("A");
-
-        // Load image from local storage using ViewModel
-        savedViewModel.getMoviePoster(movie)
+    private Disposable  observeLiveData(Movie movie, MovieViewHolder holder) {
+        return savedViewModel.getMoviePoster(movie)
                 .subscribeOn(Schedulers.io())  // Load on background thread
                 .observeOn(AndroidSchedulers.mainThread())  // Update UI on main thread
                 .subscribe(
@@ -111,6 +140,7 @@ public class SavedMoviesAdapter extends RecyclerView.Adapter<SavedMoviesAdapter.
         ImageView imageView;
 
         ImageButton bookmarkButton;
+        Disposable subscription;  // Track RxJava subscription
 
         public MovieViewHolder(@NonNull View itemView) {
             super(itemView);

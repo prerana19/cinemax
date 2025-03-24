@@ -3,6 +3,7 @@ package com.inshorts.cinemax.ui.home;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,17 +13,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
+import com.inshorts.cinemax.ui.dialog.MovieDialogFragment;
+import com.inshorts.cinemax.ui.saved.SavedMoviesAdapter;
 import com.inshorts.cinemax.util.ImageUtil;
 
 import java.text.DecimalFormat;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.MovieViewHolder> {
@@ -30,6 +37,9 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
     private final Context context;
     private final List<Movie> movies;
     private final HomeViewModel homeViewModel;
+
+    MovieDialogFragment dialog;
+    Disposable liveDataSubscription;
 
     public NowPlayingAdapter(Context context, List<Movie> movies, HomeViewModel homeViewModel) {
         this.context = context;
@@ -45,7 +55,7 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull NowPlayingAdapter.MovieViewHolder holder, int position) {
         Movie movie = movies.get(position);
 
         holder.titleTextView.setText(movie.getTitle());
@@ -76,8 +86,27 @@ public class NowPlayingAdapter extends RecyclerView.Adapter<NowPlayingAdapter.Mo
         }
         if(movie.isAdult()) holder.ratingTextView.setText("A");
 
+        holder.itemView.setOnClickListener(v -> {
+            dialog = new MovieDialogFragment();
+            Bundle args = new Bundle();
+            args.putInt("movieId", movie.getId());
+            dialog.setArguments(args);
+            FragmentManager fragmentManager = ((FragmentActivity) v.getContext()).getSupportFragmentManager();
+            dialog.show(fragmentManager, "MovieDialog");
+        });
+
+        if (dialog == null) {
+            liveDataSubscription = observeLiveData(movie,holder);  // Resume subscriptions only if dialog is NOT open
+        } else {
+            Log.d("HomeFragment", "Dialog is open. Skipping LiveData updates.");
+            liveDataSubscription.dispose();
+        }
+
         // Load image from local storage using ViewModel
-        homeViewModel.getMoviePoster(movie)
+    }
+
+    private Disposable  observeLiveData(Movie movie, MovieViewHolder holder) {
+        return homeViewModel.getMoviePoster(movie)
                 .subscribeOn(Schedulers.io())  // Load on background thread
                 .observeOn(AndroidSchedulers.mainThread())  // Update UI on main thread
                 .subscribe(
