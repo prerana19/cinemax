@@ -1,6 +1,19 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+val localProps = Properties()
+val localPropsFile = rootProject.file("local.properties")
+
+if (localPropsFile.exists()) {
+    localProps.load(FileInputStream(localPropsFile))
+}
+
+val bearerToken: String = localProps.getProperty("BEARER_TOKEN", "") ?: ""
+
 plugins {
     alias(libs.plugins.android.application)
 }
+
 
 android {
     namespace = "com.inshorts.cinemax"
@@ -14,10 +27,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "BEARER_TOKEN", "\"$bearerToken\"")
+
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BEARER_TOKEN", "\"$bearerToken\"")
+        }
         release {
+            buildConfigField("String", "BEARER_TOKEN", "\"$bearerToken\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -31,6 +50,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
