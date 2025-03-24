@@ -369,23 +369,29 @@ public class MoviesRepository {
                 );
     }
 
-    private void fillNullFields(Movie existingMovie, Movie newMovie) {
-        try {
-            for (Field field : Movie.class.getDeclaredFields()) {
-                field.setAccessible(true);
-                Object newValue = field.get(newMovie);
-                Object existingValue = field.get(existingMovie);
+    private boolean fillNullFields(Movie existingMovie, Movie newMovie) {
+        boolean updated = false;
 
-                // Update only if existing value is null
-                if (existingValue == null && newValue != null) {
-                    field.set(existingMovie, newValue);
-                }
-            }
-            Log.d( "MovieDialogViewModel", "Existing Movie After Update: " + existingMovie.toString());
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        if (existingMovie.getImdbId() == null && newMovie.getImdbId() != null) {
+            existingMovie.setImdbId(newMovie.getImdbId());
+            updated = true;
         }
+
+        if (existingMovie.getOverview() == null && newMovie.getOverview() != null) {
+            existingMovie.setOverview(newMovie.getOverview());
+            updated = true;
+        }
+
+        if (existingMovie.getGenres() == null && newMovie.getGenres() != null) {
+            existingMovie.setGenres(newMovie.getGenres());
+            updated = true;
+        }
+
+        // ✅ Add checks for other fields...
+
+        return updated; // ✅ Only return true if changes were made
     }
+
 
     public Single<String> getMovieBackdrop(int id, String backdropPath) {
         return imagesDao.getMovieImagesById(id)
@@ -436,39 +442,35 @@ public class MoviesRepository {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(localMovie -> {
-                    Log.d("MovieDetails", "Local Movie Data: " + localMovie.toString());
+                    Log.d("MovieDetails", "Local Movie Data: " + localMovie);
+
                     if (localMovie != null && localMovie.getImdbId() != null) {
-                        // If movie exists and has an IMDb ID, return it directly
+                        // ✅ Return cached local data if IMDb ID exists.
                         return Observable.just(localMovie);
                     } else {
-                        // API call should execute only once, then insert into DB and return the new movie
+                        // ✅ Fetch from API **only once**, then stop observing
                         return fetchMovieDetailsFromApi(id)
-                                .andThen(movieDao.getMovieById(id).toObservable())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread());
+                                .andThen(movieDao.getMovieById(id).toObservable()
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .firstElement()  // ✅ Stop observing after first result
+                                        .toObservable());
                     }
                 })
+                .cache()  // ✅ Ensures API fetch result is cached, avoiding duplicate calls
                 .doOnNext(movie -> Log.d("MovieDetails", "Final Movie Data: " + movie.getTitle()))
                 .doOnError(error -> Log.e("MovieDetailsError", "Error fetching movie: " + error.getMessage()));
     }
 
+
     private Completable fetchMovieDetailsFromApi(int id) {
         return moviesService.getMovieDetails(id)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .flatMapCompletable(movie ->
-                        Completable.fromAction(() -> insertOrUpdate(movie)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(
-                                        () -> {
-                                            Log.d("DB_INSERT", "Movie inserted successfully: imdbId: " + movie.getImdbId());
-                                        }, // Success
-                                        throwable -> Log.e("DB_INSERT", "Failed to insert movie", throwable) // Failure
-                                )))
-                                .subscribeOn(Schedulers.io()) // Ensure DB operation is in background
-                                .doOnComplete(() -> Log.d("DB_INSERT", "Movie inserted successfully" ))
-                                .doOnError(throwable -> Log.e("DB_INSERT", "Failed to insert movie", throwable));
+                .subscribeOn(Schedulers.io()) // Run API call in background
+                .observeOn(Schedulers.io()) // Ensure DB operation runs on IO thread
+                .flatMapCompletable(movie -> insertOrUpdate(movie)
+                        .doOnComplete(() -> Log.d("DB_INSERT", "Movie inserted successfully: imdbId: " + movie.getImdbId()))
+                        .doOnError(throwable -> Log.e("DB_INSERT", "Failed to insert movie", throwable))
+                );
     }
 
     public Completable insertOrUpdate(Movie newMovie) {
@@ -477,19 +479,27 @@ public class MoviesRepository {
                 .observeOn(Schedulers.io())
                 .flatMapSingle(existingMovie -> {
                     if (existingMovie == null) {
-                        // Movie doesn't exist, insert it
+                        Log.d("DB_OPERATION", "Movie not found in DB, inserting...");
                         return movieDao.insertMovie(newMovie)
-                                .andThen(Single.just(newMovie)); // Return inserted movie
+                                .doOnComplete(() -> Log.d("DB_OPERATION", "Insert successful"))
+                                .doOnError(e -> Log.e("DB_OPERATION", "Insert failed", e))
+                                .andThen(Single.just(newMovie));
                     } else {
-                        // Update only null fields dynamically
-                        fillNullFields(existingMovie, newMovie);
-                        return movieDao.update(existingMovie)
-                                .andThen(Single.just(existingMovie)); // Return updated movie
+                        Log.d("DB_OPERATION", "Movie found in DB, updating...");
+                        // ✅ Check if any updates are needed
+                        boolean isUpdated = fillNullFields(existingMovie, newMovie);
+                        if (isUpdated) {
+                            return movieDao.update(existingMovie)
+                                    .doOnComplete(() -> Log.d("DB_OPERATION", "Update successful"))
+                                    .doOnError(e -> Log.e("DB_OPERATION", "Update failed", e))
+                                    .andThen(Single.just(existingMovie));
+                        } else {
+                            return Single.just(existingMovie); // ✅ No changes, skip update
+                        }
                     }
                 }).ignoreElements(); // Convert Single<Movie> to Completable
-
-
     }
+
 
 
 }

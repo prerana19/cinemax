@@ -1,15 +1,21 @@
 package com.inshorts.cinemax.ui.dialog;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.*;
+import android.widget.ImageButton;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,12 +52,28 @@ public class MovieDetailActivity extends AppCompatActivity {
         binding = ActivityMovieDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Inside your activity/fragment
+        int spanCount = 4; // Adjust based on available space
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
+
+
         // Set up RecyclerView
         genreRecyclerView = binding.genreRecycleView;
-        genreRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        genreRecyclerView.setLayoutManager(gridLayoutManager);
+
+//        genreRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Get movieId from Intent
-        movieId = getIntent().getIntExtra("movieId", -1);
+        Intent intent = getIntent();
+        Uri data = intent.getData();
+        Bundle extras = intent.getExtras();
+        if(extras != null) {
+            movieId = extras.getInt("movieId", -1);
+        }
+        else if (data != null) {
+            movieId = Integer.parseInt(data.getQueryParameter("id"));
+        }
+
         if (movieId == -1) {
             Log.e("MovieDetailActivity", "No movie ID found!");
             finish(); // Close activity if no movie ID
@@ -68,10 +90,17 @@ public class MovieDetailActivity extends AppCompatActivity {
         fetchMovieDetails();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
     private void fetchMovieDetails() {
         disposables.add(viewModel.getMovieById(movieId)
+//                .distinctUntilChanged()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+//                .firstElement()
                 .subscribe(movie -> {
                     Log.d("MovieDetailActivity", "Movie: " + movie);
                     if (movie != null) {
@@ -92,12 +121,34 @@ public class MovieDetailActivity extends AppCompatActivity {
                     } else {
                         binding.movieBackdrop.setImageResource(R.drawable.movie_icon); // Fallback if missing
                     }
+                    removeBackdropDisposable();
                 }, throwable -> binding.movieBackdrop.setImageResource(R.drawable.movie_icon)));
+    }
+
+    private void removeBackdropDisposable() {
+        if (disposables != null && !disposables.isDisposed()) {
+            disposables.dispose();
+        }
     }
 
     private void setMovieDetails(Movie movie) {
         Log.d("MovieDetailActivity", "Setting movie details: " + movie);
+        ImageButton shareButton = findViewById(R.id.shareButton);
+        shareButton.setOnClickListener(v -> shareMovieDeepLink(movieId));
 
+        binding.bookmarkButton.setOnClickListener(v -> {
+            viewModel.toggleBookmark(movie);
+
+            if (movie.isBookmarked()) {
+                movie.setBookmarked(false);
+            } else {
+                movie.setBookmarked(true);
+            }
+            setBookmark(movie);
+        });
+        Log.d("Bookmark", "Movie is bookmarked: " + movie.isBookmarked());
+
+        setBookmark(movie);
         binding.movieTitle.setText(movie.getTitle());
         binding.overview.setText(movie.getOverview());
         binding.movieRating.setText(String.valueOf(movie.getVoteAverage()));
@@ -110,6 +161,25 @@ public class MovieDetailActivity extends AppCompatActivity {
         setProductionCompanies(movie.getProductionCompanies());
         setMovieRating(movie.getVoteAverage());
         setupGenreAdapter(movie.getGenres());
+    }
+
+    private void shareMovieDeepLink(int movieId) {
+        String deepLink ="cinemax://movie/details?id="+ movieId; // Local Deep Link
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out this movie!");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this movie: " + deepLink);
+
+        startActivity(Intent.createChooser(shareIntent, "Share via"));
+    }
+
+
+    private void setBookmark(Movie movie) {
+        if (movie.isBookmarked()) {
+            binding.bookmarkButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_bookmarked)); // Set bookmarked icon
+        } else {
+            binding.bookmarkButton.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_bookmark)); // Set unbookmarked icon
+        }
     }
 
     private void setupGenreAdapter(List<Genre> genres) {
@@ -125,6 +195,10 @@ public class MovieDetailActivity extends AppCompatActivity {
                     productionCompanies.stream().map(ProductionCompany::getName).collect(Collectors.toList()));
             binding.productionCompanies.setText(companyNames);
         }
+        else {
+            binding.productionCompanies.setVisibility(View.INVISIBLE);
+            binding.productionCompaniesLabel.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void setProductionCountries(List<ProductionCountry> productionCountries) {
@@ -132,6 +206,10 @@ public class MovieDetailActivity extends AppCompatActivity {
             String countryNames = TextUtils.join(", ",
                     productionCountries.stream().map(ProductionCountry::getName).collect(Collectors.toList()));
             binding.country.setText(countryNames);
+        }
+        else {
+            binding.country.setVisibility(View.INVISIBLE);
+            binding.countryLabel.setVisibility(View.INVISIBLE);
         }
     }
 

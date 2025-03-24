@@ -80,16 +80,16 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        // Check if MovieDialogFragment is open
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        Fragment dialogFragment = fragmentManager.findFragmentByTag("MovieDialog");
-
-        if (dialogFragment == null) {
-            observeTrendingMovies();
-            observeNowPlayingMovies();  // Observe only if the dialog is NOT open
-        } else {
-            Log.d("SavedFragment", "Dialog is open. Skipping LiveData updates.");
-        }
+//        // Check if MovieDialogFragment is open
+//        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+//        Fragment dialogFragment = fragmentManager.findFragmentByTag("MovieDialog");
+//
+//        if (dialogFragment == null) {
+//            observeTrendingMovies();
+//            observeNowPlayingMovies();  // Observe only if the dialog is NOT open
+//        } else {
+//            Log.d("SavedFragment", "Dialog is open. Skipping LiveData updates.");
+//        }
     }
     private void observeNowPlayingMovies() {
         homeViewModel.getNowPlayingMovies().observe(this.getViewLifecycleOwner(),movies -> {
