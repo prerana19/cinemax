@@ -15,11 +15,11 @@ import com.inshorts.cinemax.model.Genre;
 import java.util.List;
 
 public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.GenreViewHolder> {
-    private final MovieDialogViewModel viewModel;
+    private final MovieDetailViewModel viewModel;
     private final List<Genre> genres;
     private final Context context;
 
-    public GenreAdapter(Context context, List<Genre> genres, MovieDialogViewModel viewModel) {
+    public GenreAdapter(Context context, List<Genre> genres, MovieDetailViewModel viewModel) {
         this.context = context;
         this.genres = genres;
         this.viewModel = viewModel;

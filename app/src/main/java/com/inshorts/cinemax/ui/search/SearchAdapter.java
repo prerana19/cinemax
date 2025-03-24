@@ -1,6 +1,7 @@
 package com.inshorts.cinemax.ui.search;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
+import com.inshorts.cinemax.ui.dialog.MovieDetailActivity;
 
 import java.util.List;
 
@@ -45,6 +47,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.MovieViewH
         if(movie.isAdult()) holder.ratingTextView.setText("A");
         holder.movieLanguageTextView.setText(movie.getOriginalLanguage());
         holder.yearTextView.setText(movie.getReleaseDate().split("-")[0]);
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), MovieDetailActivity.class);
+            intent.putExtra("movieId", movie.getId());
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override

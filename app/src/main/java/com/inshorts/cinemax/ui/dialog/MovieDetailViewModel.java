@@ -10,11 +10,11 @@ import java.lang.reflect.Field;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Single;
 
-public class MovieDialogViewModel extends ViewModel {
+public class MovieDetailViewModel extends ViewModel {
 
     private final MoviesRepository repository;
 
-    public MovieDialogViewModel(MoviesRepository repository) {
+    public MovieDetailViewModel(MoviesRepository repository) {
         this.repository = repository;
     }
 

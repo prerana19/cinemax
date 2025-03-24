@@ -1,10 +1,7 @@
 package com.inshorts.cinemax.ui.dialog;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -29,7 +26,6 @@ import com.inshorts.cinemax.model.ProductionCountry;
 import com.inshorts.cinemax.repository.MoviesRepository;
 import com.inshorts.cinemax.util.ImageUtil;
 
-import java.net.URI;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,7 +38,7 @@ public class MovieDialogFragment extends DialogFragment {
 
     private FragmentMovieDialogBinding binding;
     private RecyclerView genreRecyclerView;
-    private MovieDialogViewModel viewModel;
+    private MovieDetailViewModel viewModel;
     private int movieId;
     private Disposable disposable; // Prevent memory leaks
     private Disposable backdropDisposable;
@@ -64,8 +60,8 @@ public class MovieDialogFragment extends DialogFragment {
             Log.d("MovieDialogFragment", "Movie ID: " + movieId);
         }
 
-        viewModel = new ViewModelProvider(this, new MovieDialogViewModelFactory(moviesRepository))
-                .get(MovieDialogViewModel.class);
+        viewModel = new ViewModelProvider(this, new MovieDetailViewModelFactory(moviesRepository))
+                .get(MovieDetailViewModel.class);
 
         fetchMovieDetails();
 

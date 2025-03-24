@@ -1,7 +1,9 @@
 package com.inshorts.cinemax.ui.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
+import com.inshorts.cinemax.ui.dialog.MovieDetailActivity;
+import com.inshorts.cinemax.ui.saved.SavedMoviesAdapter;
 import com.inshorts.cinemax.util.ImageUtil;
 
 import java.util.List;
@@ -46,35 +50,43 @@ public class TrendingMoviesAdapter extends RecyclerView.Adapter<TrendingMoviesAd
         Movie movie = movies.get(position);
         holder.titleTextView.setText(movie.getTitle());
 
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), MovieDetailActivity.class);
+            intent.putExtra("movieId", movie.getId());
+            v.getContext().startActivity(intent);
+        });
+
+        observeLiveData(movie,holder);
+
 //    Load image from local storage
-        homeViewModel.getMoviePoster(movie)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<String>() {
-                    private Disposable disposable;
-
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) {
-                        disposable = d;
-                    }
-
-                    @Override
-                    public void onSuccess(@NonNull String path) {
-                        if (holder.getAdapterPosition() == position) { // Ensure it's the right ViewHolder
-                            Bitmap bmp = ImageUtil.loadImageFromInternalStorage(path);
-                            if (bmp != null) {
-                                holder.imageView.setImageBitmap(bmp);
-                            } else {
-                                holder.imageView.setImageResource(R.drawable.movie_icon);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        holder.imageView.setImageResource(R.drawable.movie_icon);
-                    }
-                });
+//        homeViewModel.getMoviePoster(movie)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new SingleObserver<String>() {
+//                    private Disposable disposable;
+//
+//                    @Override
+//                    public void onSubscribe(@NonNull Disposable d) {
+//                        disposable = d;
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(@NonNull String path) {
+//                        if (holder.getAdapterPosition() == position) { // Ensure it's the right ViewHolder
+//                            Bitmap bmp = ImageUtil.loadImageFromInternalStorage(path);
+//                            if (bmp != null) {
+//                                holder.imageView.setImageBitmap(bmp);
+//                            } else {
+//                                holder.imageView.setImageResource(R.drawable.movie_icon);
+//                            }
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(@NonNull Throwable e) {
+//                        holder.imageView.setImageResource(R.drawable.movie_icon);
+//                    }
+//                });
         // Load image from local storage
 //        homeViewModel.getMoviePoster(movie)
 //                .subscribeOn(Schedulers.io())
@@ -90,6 +102,25 @@ public class TrendingMoviesAdapter extends RecyclerView.Adapter<TrendingMoviesAd
 //                        },
 //                        throwable -> holder.imageView.setImageResource(R.drawable.movie_icon)
 //                );
+    }
+
+    private Disposable  observeLiveData(Movie movie, TrendingViewHolder holder) {
+        return homeViewModel.getMoviePoster(movie)
+                .subscribeOn(Schedulers.io())  // Load on background thread
+                .observeOn(AndroidSchedulers.mainThread())  // Update UI on main thread
+                .subscribe(
+                        path -> {
+                            Bitmap bmp = ImageUtil.loadImageFromInternalStorage(path);
+                            if (bmp != null) {
+                                holder.imageView.setImageBitmap(bmp);
+                            } else {
+                                holder.imageView.setImageResource(R.drawable.movie_icon);
+                            }
+                        },
+                        throwable -> {
+                            holder.imageView.setImageResource(R.drawable.movie_icon); // Show error image on failure
+                        }
+                );
     }
 
     @Override

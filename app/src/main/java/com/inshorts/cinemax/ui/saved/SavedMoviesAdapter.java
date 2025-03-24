@@ -1,6 +1,7 @@
 package com.inshorts.cinemax.ui.saved;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -20,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
-import com.inshorts.cinemax.ui.dialog.MovieDialogFragment;
+import com.inshorts.cinemax.ui.dialog.MovieDetailActivity;
 import com.inshorts.cinemax.ui.home.HomeViewModel;
 import com.inshorts.cinemax.ui.home.NowPlayingAdapter;
 import com.inshorts.cinemax.util.ImageUtil;
@@ -37,7 +38,6 @@ public class SavedMoviesAdapter extends RecyclerView.Adapter<SavedMoviesAdapter.
     private final Context context;
     private final List<Movie> movies;
     private final SavedViewModel savedViewModel;
-    MovieDialogFragment dialog;
     Disposable liveDataSubscription;
     public SavedMoviesAdapter(Context context, List<Movie> movies, SavedViewModel savedViewModel) {
         this.context = context;
@@ -69,25 +69,12 @@ public class SavedMoviesAdapter extends RecyclerView.Adapter<SavedMoviesAdapter.
         if(movie.isAdult()) holder.ratingTextView.setText("A");
 
         holder.itemView.setOnClickListener(v -> {
-            dialog = new MovieDialogFragment();
-            Bundle args = new Bundle();
-            args.putInt("movieId", movie.getId());
-            dialog.setArguments(args);
-            FragmentManager fragmentManager = ((FragmentActivity) v.getContext()).getSupportFragmentManager();
-            dialog.show(fragmentManager, "MovieDialog");
+            Intent intent = new Intent(v.getContext(), MovieDetailActivity.class);
+            intent.putExtra("movieId", movie.getId());
+            v.getContext().startActivity(intent);
         });
 
-        // Stop previous subscription before starting a new one
-        if (holder.subscription != null && !holder.subscription.isDisposed()) {
-            holder.subscription.dispose();
-        }
-
-        if (dialog == null) {
-            liveDataSubscription = observeLiveData(movie,holder);  // Resume subscriptions only if dialog is NOT open
-        } else {
-            Log.d("HomeFragment", "Dialog is open. Skipping LiveData updates.");
-            liveDataSubscription.dispose();
-        }
+        observeLiveData(movie,holder);
 
         String voteAverage = new DecimalFormat("#.0").format(movie.getVoteAverage());
         holder.averageVotesTextView.setText(voteAverage);
