@@ -31,11 +31,6 @@ public class HomeViewModel extends ViewModel {
         this.moviesRepository = moviesRepository;
         fetchTrendingMovies();
         fetchNowPlayingMovies();
-//        this.trendingMovies = moviesRepository.getTrendingMovies();
-//        this.nowPlayingMovies = moviesRepository.getNowPlayingMovies();
-
-        /*mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");*/
     }
 
     private void fetchTrendingMovies() {

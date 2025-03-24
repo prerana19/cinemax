@@ -57,51 +57,6 @@ public class TrendingMoviesAdapter extends RecyclerView.Adapter<TrendingMoviesAd
         });
 
         observeLiveData(movie,holder);
-
-//    Load image from local storage
-//        homeViewModel.getMoviePoster(movie)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new SingleObserver<String>() {
-//                    private Disposable disposable;
-//
-//                    @Override
-//                    public void onSubscribe(@NonNull Disposable d) {
-//                        disposable = d;
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(@NonNull String path) {
-//                        if (holder.getAdapterPosition() == position) { // Ensure it's the right ViewHolder
-//                            Bitmap bmp = ImageUtil.loadImageFromInternalStorage(path);
-//                            if (bmp != null) {
-//                                holder.imageView.setImageBitmap(bmp);
-//                            } else {
-//                                holder.imageView.setImageResource(R.drawable.movie_icon);
-//                            }
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onError(@NonNull Throwable e) {
-//                        holder.imageView.setImageResource(R.drawable.movie_icon);
-//                    }
-//                });
-        // Load image from local storage
-//        homeViewModel.getMoviePoster(movie)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(
-//                        path -> {
-//                            Bitmap bmp = ImageUtil.loadImageFromInternalStorage(path);
-//                            if (bmp != null) {
-//                                holder.imageView.setImageBitmap(bmp);
-//                            } else {
-//                                holder.imageView.setImageResource(R.drawable.movie_icon);
-//                            }
-//                        },
-//                        throwable -> holder.imageView.setImageResource(R.drawable.movie_icon)
-//                );
     }
 
     private Disposable  observeLiveData(Movie movie, TrendingViewHolder holder) {

@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.inshorts.cinemax.ui.dialog.MovieDetailActivity;
 import com.inshorts.cinemax.R;
 import com.inshorts.cinemax.model.Movie;
-import com.inshorts.cinemax.ui.dialog.MovieDialogFragment;
 import com.inshorts.cinemax.util.ImageUtil;
 
 import java.text.DecimalFormat;
