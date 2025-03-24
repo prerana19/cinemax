@@ -1,5 +1,7 @@
 package com.inshorts.cinemax.client;
 
+import com.inshorts.cinemax.BuildConfig;
+
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -19,8 +21,9 @@ public class OkHttpHelper {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Request originalRequest = chain.request();
+                String token = BuildConfig.BEARER_TOKEN;
                 Request modifiedRequest = originalRequest.newBuilder()
-                        .header("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzODc3ZWYyYjZkZDhlYjQ1N2U1N2E2ODRkMWIyYjJhZSIsIm5iZiI6MTc0MjQ5MTY1OC4zMzc5OTk4LCJzdWIiOiI2N2RjNTAwYTc4OTFhNzY4MmI3ZmEwMjAiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.poa24S5lF_p4zL3bzKbyabpHFD8qcJG_G37vVwwSR7A")  // Replace with actual token
+                        .header("Authorization", "Bearer " + token)  // Replace with actual token
                         .header("Accept", "application/json")  // Accept JSON responses
                         .build();
                 return chain.proceed(modifiedRequest);
