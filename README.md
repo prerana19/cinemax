@@ -15,6 +15,6 @@ Cinemax is a comprehensive movie management application that allows users to bro
 Install Cinemax on your Android device using the cinemax.apk provided.
 
 ## Deeplink
--You can share any movie from the movie details page using the share button. The shared link will open the movie details page in the Cinemax app.
--For opening via adb, execute command `adb shell am start -W -a android.intent.action.VIEW -d "cinemax://movie/details?id={movieId}" com.inshorts.cinemax`
--Sample movie id = 972533
+- You can share any movie from the movie details page using the share button. The shared link will open the movie details page in the Cinemax app.
+- For opening via adb, execute command `adb shell am start -W -a android.intent.action.VIEW -d "cinemax://movie/details?id={movieId}" com.inshorts.cinemax`
+- Sample movie id = 972533
