@@ -2,13 +2,12 @@
 # Cinemax
 
 ## Introduction
-Cinemax is a comprehensive movie management application that allows users to browse, search, and manage their favorite movies. It provides detailed information about movies, including ratings, reviews, and trailers.
+Cinemax is a comprehensive movie management application that allows users to browse, search, and manage their favorite movies. It provides detailed information about movies, including ratings and reviews.
 
 ## Features
 - Browse now playing and trending movies
 - Search for movies by title
 - View detailed information about each movie
-- Watch trailers
 - Create and manage a list of favorite movies
 
 ## Installation
